@@ -57,7 +57,7 @@ extern "C" {
 #define BOOT_CONFIG_SECTOR 1
 
 #define BOOT_CONFIG_MAGIC 0xe1
-#define BOOT_CONFIG_VERSION 0x02
+#define BOOT_CONFIG_VERSION 0x03
 
 #define MODE_STANDARD    0x00
 #define MODE_GPIO_ROM    0x01

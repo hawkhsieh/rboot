@@ -360,13 +360,15 @@ uint32 NOINLINE find_image(void) {
 #endif
 		) {
 		// create a default config for a standard 2 rom setup
-		ets_printf("Writing default boot config.\r\n");
+        ets_printf("Writing 4 rom boot config.\r\n");
 		ets_memset(romconf, 0x00, sizeof(rboot_config));
 		romconf->magic = BOOT_CONFIG_MAGIC;
 		romconf->version = BOOT_CONFIG_VERSION;
-		romconf->count = 2;
-		romconf->roms[0] = SECTOR_SIZE * (BOOT_CONFIG_SECTOR + 1);
-		romconf->roms[1] = (flashsize / 2) + (SECTOR_SIZE * (BOOT_CONFIG_SECTOR + 1));
+        romconf->count = 4;
+        romconf->roms[0] = SECTOR_SIZE * (BOOT_CONFIG_SECTOR + 1);
+        romconf->roms[1] = (flashsize / 4)*1 + (SECTOR_SIZE * (BOOT_CONFIG_SECTOR + 1));
+        romconf->roms[2] = (flashsize / 4)*2 + (SECTOR_SIZE * (BOOT_CONFIG_SECTOR + 1));
+        romconf->roms[3] = (flashsize / 4)*3 + (SECTOR_SIZE * (BOOT_CONFIG_SECTOR + 1));
 #ifdef BOOT_CONFIG_CHKSUM
 		romconf->chksum = calc_chksum((uint8*)romconf, (uint8*)&romconf->chksum);
 #endif
@@ -391,8 +393,10 @@ uint32 NOINLINE find_image(void) {
 			ets_printf("Booting temp rom.\r\n");
 			temp_boot = TRUE;
 			romToBoot = rtc.temp_rom;
-		}
-	}
+        }
+    }else{
+        ets_printf("Read rtc failed\n");
+    }
 #endif
 
 #ifdef BOOT_GPIO_ENABLED
@@ -487,7 +491,14 @@ uint32 NOINLINE find_image(void) {
 	system_rtc_mem(RBOOT_RTC_ADDR, &rtc, sizeof(rboot_rtc_data), RBOOT_RTC_WRITE);
 #endif
 
-	ets_printf("Booting rom %d.\r\n", romToBoot);
+    SPIRead(BOOT_CONFIG_SECTOR * SECTOR_SIZE, buffer, SECTOR_SIZE);
+
+    ets_printf("Booting rom %d,RMA=%c\r\n", romToBoot , romconf->isRma);
+    int i;
+    for( i = 0; i <romconf->count; i++) {
+        ets_printf("%c%d: offset 0x%08x\r\n", i == romToBoot ? '*':' ', i, romconf->roms[i]);
+    }
+
 	// copy the loader to top of iram
 	ets_memcpy((void*)_text_addr, _text_data, _text_len);
 	// return address to load from
