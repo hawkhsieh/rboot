@@ -57,7 +57,7 @@ extern "C" {
 #define BOOT_CONFIG_SECTOR 1
 
 #define BOOT_CONFIG_MAGIC 0xe1
-#define BOOT_CONFIG_VERSION 0x01
+#define BOOT_CONFIG_VERSION 0x02
 
 #define MODE_STANDARD    0x00
 #define MODE_GPIO_ROM    0x01
@@ -95,7 +95,8 @@ typedef struct {
 	uint8 current_rom;     ///< Currently selected ROM (will be used for next standard boot)
 	uint8 gpio_rom;        ///< ROM to use for GPIO boot (hardware switch) with mode set to MODE_GPIO_ROM
 	uint8 count;           ///< Quantity of ROMs available to boot
-	uint8 unused[2];       ///< Padding (not used)
+	uint8 isRma;
+	uint8 unused[1];       ///< Padding (not used)
 	uint32 roms[MAX_ROMS]; ///< Flash addresses of each ROM
 #ifdef BOOT_CONFIG_CHKSUM
 	uint8 chksum;          ///< Checksum of this configuration structure (if BOOT_CONFIG_CHKSUM defined)
